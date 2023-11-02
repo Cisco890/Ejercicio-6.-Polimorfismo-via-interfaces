@@ -1,0 +1,6 @@
+Id,Tipo,MarcaModelo,Estado
+1,Telefono,Galaxy S10,true
+2,Telefono,iPhone 12,false
+3,Computadora,Dell 15,true
+4,Computadora,HP,false
+5,Telefono,Redmi Note 10,false
