@@ -1,9 +1,17 @@
+/** Juan Francisco Martínez 23617
+
+  * Data
+ 
+  * @param Lo que se ingresa en el menú y el csv
+  * @throws es la clase que se encarga de leer el csv, acá también está el código que busca por id y demás funciones
+
+  */
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
-
+// importar librerias
 public class Data {
-    private List<DispElectronico> DispElectronico = new ArrayList<>();
+    private List<DispElectronico> DispElectronico = new ArrayList<>();// cración del array list para guardar los dispositivos electronicos
 
     public void crearDispositivosDesdeCSV() {
         try {
@@ -25,10 +33,10 @@ public class Data {
                     String marcaModelo = datos[2]; // El modelo se encuentra en el tercer campo (índice 2)
                     boolean encendido = datos[3].equalsIgnoreCase("true"); // Comparación insensible a mayúsculas/minúsculas
     
-                    if (tipo.equals("Telefono")) {
+                    if ("Telefono".equals(tipo)) {
                         Telefono telefono = new Telefono(id, marcaModelo, encendido);
                         DispElectronico.add(telefono);
-                    } else if (tipo.equals("Computadora")) {
+                    } else if ("Computadora".equals(tipo)) {
                         Computadora computadora = new Computadora(id, marcaModelo, encendido);
                         DispElectronico.add(computadora);
                     }
@@ -39,36 +47,43 @@ public class Data {
             e.printStackTrace();
         }
     }
+    // creación de dispositivos electrónicos según el csv
 
-    public void desplegarInformacion() {
+    public void desplegarInformacion() {// desplegar la información del csv cuando se presiona 1 en el menú
+        List<Integer> dispositivosMostrados = new ArrayList<>();
+
         for (DispElectronico dispositivo : DispElectronico) {
-            System.out.println("ID: " + dispositivo.getID()); // Muestra el ID
-            System.out.println("Dispositivo: " + dispositivo.getClass().getSimpleName());
-            System.out.println("Marca/Modelo: " + dispositivo.getMarcaModelo());
-            System.out.println("Estado: " + (dispositivo.Encendido() ? "Encendido" : "Apagado"));
-            System.out.println();
+            int id = dispositivo.getID();
+            if (!dispositivosMostrados.contains(id)) {
+                System.out.println("ID: " + id); // Muestra el ID
+                System.out.println("Dispositivo: " + dispositivo.getClass().getSimpleName());
+                System.out.println("Marca/Modelo: " + dispositivo.getMarcaModelo());
+                System.out.println("Estado: " + (dispositivo.Encendido() ? "Encendido" : "Apagado"));
+                System.out.println();
+
+                // Agregar el ID a la lista de dispositivos mostrados
+                dispositivosMostrados.add(id);
+            }
         }
     }
 
-    public void validarEstadoDispositivos() {
-        for (DispElectronico dispositivo : DispElectronico) {
-            System.out.println("Dispositivo: " + dispositivo.getClass().getSimpleName());
-            System.out.println("Estado: " + (dispositivo.Encendido() ? "Encendido" : "Apagado"));
-            System.out.println();
-        }
-    }
+    
 
-    public void guardarEnCSV() {
+    public void guardarEnCSV() {// guardar los nuevos datos en el csv cuando se presiona 2 o 3 en el menú
         try {
             FileWriter writer = new FileWriter("dispositivos.csv");
             BufferedWriter bw = new BufferedWriter(writer);
     
+            // Escribe el encabezado en el archivo CSV
+            bw.write("Id,Tipo,MarcaModelo,Estado");
+            bw.newLine();
+    
             for (DispElectronico dispositivo : DispElectronico) {
-                String estado = dispositivo.Encendido() ? "Encendido" : "Apagado";
-                String linea = dispositivo.getClass().getSimpleName() + ","
-                        + dispositivo.getMarcaModelo() + ","
-                        + estado + ","
-                        + dispositivo.getID(); // Agregar el Id
+                String estado = dispositivo.Encendido() ? "true" : "false"; // Cambia a true o false
+                String linea = dispositivo.getID() + "," +
+                        dispositivo.getClass().getSimpleName() + "," +
+                        dispositivo.getMarcaModelo() + "," +
+                        estado;
                 bw.write(linea);
                 bw.newLine();
             }
@@ -79,8 +94,11 @@ public class Data {
         }
     }
     
+    
+    
+    
 
-    public void leerDesdeCSV() {
+    public void leerDesdeCSV() {// leer el csv
         try {
             File file = new File("dispositivos.csv");
             if (file.exists()) {
@@ -91,7 +109,7 @@ public class Data {
                 while ((linea = br.readLine()) != null) {
                     if (primeraLinea) {
                         primeraLinea = false;
-                        continue;  // Saltar la primera línea
+                        continue;  // Saltar la primera línea(encabezado)
                     }
     
                     String[] datos = linea.split(",");
@@ -113,7 +131,7 @@ public class Data {
         }
     }    
     
-    public void cambiarEstadoDispositivo(int id, boolean encender) {
+    public void cambiarEstadoDispositivo(int id, boolean encender) {// funcion para cambiar el estado del dispositivo
         for (DispElectronico dispositivo : DispElectronico) {
             if (dispositivo.getID() == id) {
                 if (encender) {
@@ -121,9 +139,11 @@ public class Data {
                 } else {
                     dispositivo.apagar();
                 }
+                // Actualiza el archivo CSV
+                guardarEnCSV();
                 return;
             }
         }
         System.out.println("No se encontró ningún dispositivo con el ID especificado.");
-    }   
+    }  
 }
